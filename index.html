@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#142b50">
+  <title>Smart Traffic Management System</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="{{ url_for('static', filename='script.js') }}" defer></script>
+</head>
+<body>
+  <aside class="sidebar">
+    <div class="brand-mark"><span class="traffic-light"><i></i><i></i><i></i></span></div>
+    <div class="brand-name">Smart Traffic<br>Management System</div>
+    <nav class="side-nav" aria-label="Main navigation">
+      <a class="nav-link active" href="#overview"><span>⌂</span>Dashboard</a>
+      <a class="nav-link" href="#live-traffic"><span>▣</span>Live Traffic</a>
+      <a class="nav-link" href="#analytics"><span>▥</span>Analytics</a>
+      <a class="nav-link" href="#prediction-panel"><span>✣</span>Predictions</a>
+      <a class="nav-link" href="#about"><span>ⓘ</span>About</a>
+    </nav>
+    <div class="sidebar-bottom"><div class="road-art"><span></span></div><p>Smarter Roads.<br>A Better Tomorrow.</p></div>
+  </aside>
+
+  <main class="main-content" id="overview">
+    <header class="page-header">
+      <div><p class="eyebrow">TRAFFIC INTELLIGENCE PLATFORM</p><h1>Smart Traffic Management System</h1><p class="subtitle">Weather-aware congestion estimates, travel-time guidance and machine-learning insights.</p></div>
+      <div class="live-clock"><span class="live-dot"></span><span>System online</span><b id="clock">--:--</b></div>
+    </header>
+
+    <section class="summary-grid" aria-label="Live overview">
+      <article class="summary-card weather-card">
+        <div class="summary-icon">☀</div><div class="summary-copy"><p class="card-kicker">Current Weather</p><div class="summary-value" id="weatherTemp">--°C</div><p class="summary-detail" id="weatherExtra">Fetching local conditions…</p></div>
+        <button class="refresh-button" id="refreshWeatherBtn" type="button">↻ Refresh</button>
+      </article>
+      <article class="summary-card time-card">
+        <div class="summary-icon">◷</div><div class="summary-copy"><p class="card-kicker">Suggested Travel Time</p><div class="summary-value" id="bestTime">--:--</div><p class="summary-detail" id="bestDetails">Calculating a suitable departure time…</p></div>
+        <button class="refresh-button" id="refreshBestBtn" type="button">↻ Refresh</button>
+      </article>
+      <article class="summary-card traffic-card" id="live-traffic">
+        <div class="summary-icon">🚘</div><div class="summary-copy"><p class="card-kicker">Live Road Traffic</p><div class="summary-value traffic-status" id="trafficStatus">Checking…</div><p class="summary-detail" id="trafficDetails">Connecting to TomTom traffic flow.</p></div>
+        <button class="refresh-button" id="refreshTrafficBtn" type="button">↻ Refresh</button>
+      </article>
+    </section>
+
+    <section class="tools-grid">
+      <article class="panel trip-panel">
+        <div class="panel-heading orange-heading"><span class="heading-icon">↗</span><h2>Trip Duration Estimator</h2></div>
+        <div class="trip-content">
+          <form id="tripForm" class="trip-form">
+            <label for="distance">Trip distance (km)</label><input id="distance" type="number" min="0.1" step="any" value="10" required>
+            <label for="speed">Expected average speed (km/h)</label><input id="speed" type="number" min="1" max="180" step="any" value="30" required>
+            <button class="action-button orange-button" type="submit">▦ &nbsp; Estimate Duration</button>
+          </form>
+          <div class="trip-output"><span class="car-icon">🚗</span><p class="output-label">Estimated Duration</p><strong id="tripDuration">-- min</strong><small id="tripBasis">Enter trip details to calculate.</small></div>
+        </div>
+      </article>
+
+      <article class="panel prediction-panel" id="prediction-panel">
+        <div class="panel-heading purple-heading"><span class="heading-icon">▥</span><h2>Estimate Congestion</h2></div>
+        <div class="prediction-content">
+          <form id="predictionForm" class="prediction-form">
+            <div class="field-grid">
+              <div><label for="hour">Hour (0–23)</label><input id="hour" type="number" min="0" max="23" value="8" required></div>
+              <div><label for="volume">Traffic volume</label><input id="volume" type="number" min="0" value="750" required></div>
+              <div><label for="temp">Temperature (°C)</label><input id="temp" type="number" min="-100" max="70" step="any" value="30" required></div>
+              <div><label for="rain">Rainfall (mm)</label><input id="rain" type="number" min="0" step="any" value="0" required></div>
+            </div>
+            <label for="model">Prediction method</label>
+            <select id="model"><option value="rules">Rule-based estimator</option><option value="Decision Tree">Decision Tree ML</option><option value="Logistic Regression">Logistic Regression ML</option></select>
+            <button class="action-button purple-button" type="submit">✦ &nbsp; Predict Congestion</button>
+          </form>
+          <aside class="prediction-result" id="predictionResult" aria-live="polite">
+            <span class="result-check">✓</span><p class="result-label">Congestion Level</p><strong id="predictionLevel">Ready</strong><p class="result-score" id="predictionScore">Enter conditions to begin</p><div class="recommendation"><span>💡</span><div><b>Recommendation</b><p id="recommendation">Your travel recommendation will appear here.</p></div></div>
+          </aside>
+        </div>
+      </article>
+    </section>
+
+    <section class="analytics-grid" id="analytics">
+      <article class="chart-panel distribution-panel"><div class="chart-title"><span class="title-icon yellow-icon">◔</span><h2>Congestion Distribution</h2></div><div class="chart-wrap"><canvas id="distributionChart"></canvas></div></article>
+      <article class="chart-panel"><div class="chart-title"><span class="title-icon blue-icon">⌁</span><h2>Average Traffic by Hour</h2></div><div class="chart-wrap"><canvas id="trafficChart"></canvas></div></article>
+      <article class="chart-panel"><div class="chart-title"><span class="title-icon violet-icon">★</span><h2>Average Congestion Score by Hour</h2></div><div class="chart-wrap"><canvas id="scoreChart"></canvas></div></article>
+    </section>
+
+    <section class="bottom-grid">
+      <article class="panel model-panel"><div class="panel-heading navy-heading"><span class="heading-icon">🏆</span><h2>Model Evaluation</h2></div><div class="model-content" id="modelMetrics"><div class="model-placeholder">Loading model evaluation…</div></div></article>
+      <article class="chart-panel scatter-panel"><div class="chart-title"><span class="title-icon green-icon">⠿</span><h2>Traffic Volume vs Temperature</h2></div><div class="chart-wrap"><canvas id="scatterChart"></canvas></div></article>
+    </section>
+
+    <footer id="about">Smart Traffic Management System · Academic prototype · Live traffic and weather depend on external API availability.</footer>
+  </main>
+</body>
+</html>
